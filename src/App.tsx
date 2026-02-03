@@ -40,11 +40,12 @@ import IssueWindowSection from './components/IssueWindowSection.tsx';
 import VisitorReportWindowSection from './components/VisitorReportWindowSection.tsx';
 import ConsumptionReportWindowSection from './components/ConsumptionReportWindowSection.tsx';
 import ReceivedRequestsSection from './components/ReceivedRequestsSection.tsx';
+import AnalyticsSection from './components/AnalyticsSection.tsx';
 
 // Nav Sub-options (Placeholder for standard department tools)
 const DEPARTMENT_SUB_OPTIONS: Record<string, string[]> = {
   'Visitor / Sevak': ['All Feedback', 'DPVT', 'Food Court', 'Souvenir', 'Museum', 'Dhammalay'],
-  'Todays Report': ['Daily Report'],
+  'Todays Report': ['Daily Report', 'Analytics'],
   'My Profile': ['My Task', 'Announcements', 'Bill Sub', 'Attendance', 'Meditation', 'Chat', 'Courses', 'Material', 'Meals', 'Vehicles', 'Guest', 'Rooms', 'Leave', 'Movement', 'Issue', 'Bill Sub', 'Repair', 'Visitor', 'Consumption', 'CCTV'],
   'Reception': ['Staff Status', 'Meditation Window', 'Received Requests', 'Issue Window', 'Announcements Window', 'MV', 'Voucher Window', 'Task Reports', 'In-Progress', 'Policies'],
   'Transport': ['Staff Status', 'Meditation Window', 'Received Requests', 'Issue Window', 'Announcements Window', 'MV', 'Voucher Window', 'Task Reports', 'In-Progress', 'Policies'],
@@ -193,6 +194,10 @@ function App() {
 
     if (activeSubOption === 'Consumption Report') {
       return <ConsumptionReportWindowSection />;
+    }
+
+    if (activeSubOption === 'Analytics') {
+      return <AnalyticsSection />;
     }
 
     if (activeSubOption === 'Received Requests') {
@@ -357,7 +362,7 @@ function App() {
             ))}
           </div>
 
-          <div className={`workspace-container ${['CCTV', 'Chat', 'Daily Report', 'Meditation', 'Meditation Window', 'Announcements', 'Announcements Window', 'Bill Sub', 'My Task', 'Courses', 'Material', 'Repair', 'Meals', 'Vehicles', 'Guest', 'Rooms', 'Leave', 'Movement', 'Issue', 'Issue Window', 'Visitor', 'Visitor Window', 'Consumption', 'Consumption Report', 'Received Requests', 'All Feedback', 'Staff Status', 'Task Reports', 'In-Progress', 'MV', 'Voucher Window'].includes(activeSubOption || '') ? 'p-0 flex flex-col' : ''}`}>
+          <div className={`workspace-container ${['CCTV', 'Chat', 'Daily Report', 'Analytics', 'Meditation', 'Meditation Window', 'Announcements', 'Announcements Window', 'Bill Sub', 'My Task', 'Courses', 'Material', 'Repair', 'Meals', 'Vehicles', 'Guest', 'Rooms', 'Leave', 'Movement', 'Issue', 'Issue Window', 'Visitor', 'Visitor Window', 'Consumption', 'Consumption Report', 'Received Requests', 'All Feedback', 'Staff Status', 'Task Reports', 'In-Progress', 'MV', 'Voucher Window'].includes(activeSubOption || '') ? 'p-0 flex flex-col' : ''}`}>
             {renderContent()}
           </div>
         </section>
@@ -382,11 +387,19 @@ function App() {
       {/* Footer */}
       <footer className="footer-container">
         <div className="footer-links">
-          <a href="#" className="footer-link">• About us</a>
-          <a href="#" className="footer-link">• Terms of use</a>
-          <a href="#" className="footer-link">• Contact us</a>
-          <a href="#" className="footer-link">• Privacy Policy</a>
+          <a href="#" className="footer-link">About Us</a>
+          <span className="footer-divider"></span>
+          <a href="#" className="footer-link">Terms of Use</a>
+          <span className="footer-divider"></span>
+          <a href="#" className="footer-link">Contact Us</a>
+          <span className="footer-divider"></span>
+          <a href="#" className="footer-link">Privacy Policy</a>
         </div>
+
+        <div className="footer-motto">
+          Serving with Dhamma, Discipline, and Clarity
+        </div>
+
         <div className="copyright">
           © 2010 Global Vipassana Pagoda<br />
           All Rights Reserved
