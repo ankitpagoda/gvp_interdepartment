@@ -1,23 +1,51 @@
 import { useState } from 'react';
-import type { Role, GVPRequest, RequestStatus } from '../types';
+import type { Role, GVPRequest, RequestStatus, User as AuthUser } from '../types';
 import { updateRequestStatus } from '../lib/mockDb';
-import { Clock, Check, X, MessageSquare, Phone, Info, History as HistoryIcon } from 'lucide-react';
+import { Clock, Check, X, MessageSquare, Phone, Info, History as HistoryIcon, Download } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 interface DepartmentDashboardProps {
     role: Role;
     requests: GVPRequest[];
+    user: AuthUser | null;
 }
 
-const DepartmentDashboard = ({ role, requests }: DepartmentDashboardProps) => {
+const DepartmentDashboard = ({ role, requests, user }: DepartmentDashboardProps) => {
     const [selectedId, setSelectedId] = useState<string | null>(null);
+
+    const isAuthorizedForDownload = user?.role === 'Manager' || user?.role === 'Trustee' || user?.role === 'Super Admin' || user?.role === 'Chairman';
+
+    const downloadCSV = () => {
+        const headers = ["ID", "Title", "Requester", "Dept", "Status", "Priority", "Date"];
+        const rows = requests.map(r => [
+            r.id,
+            `"${r.title.replace(/"/g, '""')}"`,
+            r.requesterName,
+            r.requesterDept,
+            r.status,
+            r.priority,
+            new Date(r.createdAt).toLocaleDateString()
+        ]);
+
+        const csvContent = "data:text/csv;charset=utf-8,"
+            + headers.join(",") + "\n"
+            + rows.map(e => e.join(",")).join("\n");
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `${user?.trustId}_${user?.department}_Report.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
 
     const filteredRequests = requests;
     const selectedRequest = requests.find(r => r.id === selectedId);
 
     const handleAction = (status: RequestStatus, comment: string) => {
-        if (selectedId) {
-            updateRequestStatus(selectedId, status, 'current-user-id', role, comment);
+        if (selectedId && user) {
+            updateRequestStatus(selectedId, status, user.staffId, role, comment);
             setSelectedId(null);
         }
     };
@@ -35,10 +63,21 @@ const DepartmentDashboard = ({ role, requests }: DepartmentDashboardProps) => {
         <div className="grid md:grid-cols-12 gap-6 fade-in">
             <div className="md:col-span-4 space-y-6">
                 <div className="glass-card p-6">
-                    <h2 className="text-xl font-bold mb-4 flex items-center gap-1 text-primary-dark">
-                        <Clock size={24} className="opacity-80" />
-                        Pending Tasks
-                    </h2>
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-xl font-bold flex items-center gap-1 text-primary-dark">
+                            <Clock size={24} className="opacity-80" />
+                            {user?.trustId} - {user?.department || 'Department'}
+                        </h2>
+                        {isAuthorizedForDownload && (
+                            <button
+                                onClick={downloadCSV}
+                                className="p-2 hover:bg-primary/10 rounded-lg text-primary transition-colors tooltip"
+                                title="Download as CSV"
+                            >
+                                <Download size={20} />
+                            </button>
+                        )}
+                    </div>
                     <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
                         {filteredRequests.length === 0 ? (
                             <div className="py-2 text-text-main">

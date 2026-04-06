@@ -24,12 +24,12 @@ const VisitorForm = ({ role }: VisitorFormProps) => {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        let targetTrust: TrustId = 'GPT';
+        let targetTrust: TrustId = 'GVP';
         let targetDept: Department = 'Transport';
 
         if (type === 'Accommodation') {
-            targetTrust = 'SVCT';
-            targetDept = 'Dhammale';
+            targetTrust = 'DPVT';
+            targetDept = 'Dhammalay';
         }
 
         createRequest({

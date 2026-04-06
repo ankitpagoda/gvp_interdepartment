@@ -1,386 +1,579 @@
 import { useState, useEffect } from 'react';
 import type { Role, Department, TrustId, GVPRequest } from './types.ts';
 import Navbar from './components/Navbar.tsx';
-import VisitorForm from './components/VisitorForm.tsx';
-import RequirementForm from './components/RequirementForm.tsx';
 import DepartmentDashboard from './components/DepartmentDashboard.tsx';
-import AdminDashboard from './components/AdminDashboard.tsx';
 import { checkSLAs } from './lib/slaService.ts';
-import { getRequests, getRequestsByDepartment } from './lib/mockDb.ts';
+import { getRequests } from './lib/mockDb.ts';
 import DailyReportWidget from './components/DailyReportWidget.tsx';
 import ChatSection from './components/ChatSection.tsx';
 import AttendanceSection from './components/AttendanceSection.tsx';
 import CCTVSection from './components/CCTVSection.tsx';
 import DailyReportSection from './components/DailyReportSection.tsx';
 import MeditationSection from './components/MeditationSection.tsx';
-import MeditationWindowSection from './components/MeditationWindowSection.tsx';
+import AnalyticsDashboard from './components/AnalyticsDashboard.tsx';
 import AnnouncementSection from './components/AnnouncementSection.tsx';
-import AnnouncementsWindowSection from './components/AnnouncementsWindowSection.tsx';
-import BillSubSection from './components/BillSubSection.tsx';
-import TaskSection from './components/TaskSection.tsx';
-import CourseRequestSection from './components/CourseRequestSection.tsx';
-import MaterialRequestSection from './components/MaterialRequestSection.tsx';
-import MealRequestSection from './components/MealRequestSection.tsx';
-import VehicleRequestSection from './components/VehicleRequestSection.tsx';
-import GuestRequestSection from './components/GuestRequestSection.tsx';
-import RoomRequestSection from './components/RoomRequestSection.tsx';
+
 import LeaveRequestSection from './components/LeaveRequestSection.tsx';
 import MovementSection from './components/MovementSection.tsx';
-import VisitorRecordSection from './components/VisitorRecordSection.tsx';
-import ConsumptionSection from './components/ConsumptionSection.tsx';
 import RepairRequestSection from './components/RepairRequestSection.tsx';
-import FeedbackCategorySection from './components/FeedbackCategorySection.tsx';
 import StaffStatusSection from './components/StaffStatusSection.tsx';
-import TaskReportsSection from './components/TaskReportsSection.tsx';
 import InProgressSection from './components/InProgressSection.tsx';
-import MovementViewSection from './components/MovementViewSection.tsx';
 import VoucherWindowSection from './components/VoucherWindowSection.tsx';
 import IssueSubmissionSection from './components/IssueSubmissionSection.tsx';
-import IssueWindowSection from './components/IssueWindowSection.tsx';
-import VisitorReportWindowSection from './components/VisitorReportWindowSection.tsx';
-import ConsumptionReportWindowSection from './components/ConsumptionReportWindowSection.tsx';
 import ReceivedRequestsSection from './components/ReceivedRequestsSection.tsx';
-import AnalyticsSection from './components/AnalyticsSection.tsx';
+import UnifiedRequestForm from './components/UnifiedRequestForm.tsx';
+import LoginPortal from './components/LoginPortal.tsx';
+import TaskStatusDashboard from './components/TaskStatusDashboard.tsx';
+import AskAI from './components/AskAI.tsx';
+import OperationalMenu from './components/OperationalMenu.tsx';
+import AllFeedbackSection from './components/AllFeedbackSection.tsx';
+import SurveyBuilder from './components/SurveyBuilder.tsx';
+import SurveyReport from './components/SurveyReport.tsx';
+import AnnouncementFeed from './components/AnnouncementFeed.tsx';
+import SuggestionsSection from './components/SuggestionsSection.tsx';
+import PurchaseOrderForm from './components/PurchaseOrderForm.tsx';
+import PurchaseOrderFeed from './components/PurchaseOrderFeed.tsx';
+import MeditationDashboard from './components/MeditationDashboard.tsx';
+import HousekeepingFeed from './components/HousekeepingFeed.tsx';
+import RoomForm from './components/RoomForm.tsx';
+import RoomDashboard from './components/RoomDashboard.tsx';
+import CourseSummaryForm from './components/CourseSummaryForm.tsx';
+import MeditatorRequestForm from './components/MeditatorRequestForm.tsx';
+import MeditatorDashboard from './components/MeditatorDashboard.tsx';
+import BillSubmitForm from './components/BillSubmitForm.tsx';
+import type { User as AuthUser } from './types.ts';
+import { useRBACAuth } from './hooks/useRBACAuth.ts';
+import ManageMembers from './components/ManageMembers.tsx';
+import DepartmentSwitcher from './components/DepartmentSwitcher.tsx';
+import UserDepartmentMappingAdmin from './components/UserDepartmentMappingAdmin.tsx';
+import AccessDenied from './components/AccessDenied.tsx';
 
-// Nav Sub-options (Placeholder for standard department tools)
-const DEPARTMENT_SUB_OPTIONS: Record<string, string[]> = {
-  'Visitor / Sevak': ['All Feedback', 'DPVT', 'Food Court', 'Souvenir', 'Museum', 'Dhammalay'],
-  'Todays Report': ['Daily Report', 'Analytics'],
-  'My Profile': ['My Task', 'Announcements', 'Bill Sub', 'Attendance', 'Meditation', 'Chat', 'Courses', 'Material', 'Meals', 'Vehicles', 'Guest', 'Rooms', 'Leave', 'Movement', 'Issue', 'Bill Sub', 'Repair', 'Visitor', 'Consumption', 'CCTV'],
-  'Reception': ['Staff Status', 'Meditation Window', 'Received Requests', 'Issue Window', 'Announcements Window', 'MV', 'Voucher Window', 'Task Reports', 'In-Progress', 'Policies'],
-  'Transport': ['Staff Status', 'Meditation Window', 'Received Requests', 'Issue Window', 'Announcements Window', 'MV', 'Voucher Window', 'Task Reports', 'In-Progress', 'Policies'],
-  'IT-Dept': ['Staff Status', 'Meditation Window', 'Received Requests', 'Issue Window', 'Announcements Window', 'MV', 'Voucher Window', 'Task Reports', 'In-Progress', 'Policies'],
-  'Account': ['Staff Status', 'Meditation Window', 'Received Requests', 'Issue Window', 'Announcements Window', 'MV', 'Voucher Window', 'Task Reports', 'In-Progress', 'Policies'],
-  'Dhammalay': ['Staff Status', 'Consumption Report', 'Visitor Window', 'Meditation Window', 'Received Requests', 'Issue Window', 'Announcements Window', 'MV', 'Voucher Window', 'Task Reports', 'In-Progress', 'Policies'],
-  'DPVT': ['Staff Status', 'Consumption Report', 'Meditation Window', 'Received Requests', 'Issue Window', 'Announcements Window', 'MV', 'Voucher Window', 'Task Reports', 'In-Progress', 'Policies'],
-  'Museum': ['Staff Status', 'Consumption Report', 'Visitor Window', 'Meditation Window', 'Received Requests', 'Issue Window', 'Announcements Window', 'MV', 'Voucher Window', 'Task Reports', 'In-Progress', 'Policies'],
-  'VRI': ['Staff Status', 'Consumption Report', 'Meditation Window', 'Received Requests', 'Issue Window', 'Announcements Window', 'MV', 'Voucher Window', 'Task Reports', 'In-Progress', 'Policies'],
-  'Pala': ['Staff Status', 'Meditation Window', 'Received Requests', 'Issue Window', 'Announcements Window', 'MV', 'Voucher Window', 'Task Reports', 'In-Progress', 'Policies'],
-  'Souvenir': ['Staff Status', 'Meditation Window', 'Received Requests', 'Issue Window', 'Announcements Window', 'MV', 'Voucher Window', 'Task Reports', 'In-Progress', 'Policies'],
-  'PR': ['Staff Status', 'Visitor Window', 'Meditation Window', 'Received Requests', 'Issue Window', 'Announcements Window', 'MV', 'Voucher Window', 'Task Reports', 'In-Progress', 'Policies'],
-  'Purchase': ['Staff Status', 'Meditation Window', 'Received Requests', 'Issue Window', 'Announcements Window', 'MV', 'Voucher Window', 'Task Reports', 'In-Progress', 'Policies'], // This should be a full Purchase module later
-  'Store': ['Staff Status', 'Meditation Window', 'Received Requests', 'Issue Window', 'Announcements Window', 'MV', 'Voucher Window', 'Task Reports', 'In-Progress', 'Policies'],
-  'Maintenance': ['Staff Status', 'Meditation Window', 'Received Requests', 'Issue Window', 'Announcements Window', 'MV', 'Voucher Window', 'Task Reports', 'In-Progress', 'Policies'],
-  'Food Court': ['Staff Status', 'Consumption Report', 'Meditation Window', 'Received Requests', 'Issue Window', 'Announcements Window', 'MV', 'Voucher Window', 'Task Reports', 'In-Progress', 'Policies'],
-  'Kitchen': ['Staff Status', 'Meditation Window', 'Received Requests', 'Issue Window', 'Announcements Window', 'MV', 'Voucher Window', 'Task Reports', 'In-Progress', 'Policies'],
-  'Garden': ['Staff Status', 'Meditation Window', 'Received Requests', 'Issue Window', 'Announcements Window', 'MV', 'Voucher Window', 'Task Reports', 'In-Progress', 'Policies'],
-  'Electrician': ['Staff Status', 'Meditation Window', 'Received Requests', 'Issue Window', 'Announcements Window', 'MV', 'Voucher Window', 'Task Reports', 'In-Progress', 'Policies'],
-  'Water Man': ['Staff Status', 'Meditation Window', 'Received Requests', 'Issue Window', 'Announcements Window', 'MV', 'Voucher Window', 'Task Reports', 'In-Progress', 'Policies'],
-  'Security': ['Staff Status', 'Meditation Window', 'Received Requests', 'Issue Window', 'Announcements Window', 'MV', 'Voucher Window', 'Task Reports', 'In-Progress', 'Policies'],
-  'Housekeeping': ['Staff Status', 'Meditation Window', 'Received Requests', 'Issue Window', 'Announcements Window', 'MV', 'Voucher Window', 'Task Reports', 'In-Progress', 'Policies']
+import { DEPARTMENT_ACTIVITIES } from './lib/activities.ts';
+
+const SIDEBAR_DEPARTMENTS: Record<TrustId, Department[]> = {
+  'DPVT': ['Dhamma-Pattana'],
+  'SVCT': ['Food-Court', 'Souvenir', 'Dhammalay'],
+  'VRI': ['Library', 'Academic', 'Pariyatti', 'Publication', 'Archive', 'Conservation', 'Preservation'],
+  'GVP': ['Reception', 'Museum', 'PR', 'Maintains', 'Electrical', 'Water', 'Civil', 'Kitchen', 'One-Day', 'Garden', 'Housekeeping', 'Security', 'Accounts', 'IT', 'Purchase', 'Store'],
+  'GPT': [],
+  'DPT': []
 };
 
-// Simulation Context: Maps sidebar button to a specific "User Role"
-interface SimulationContext {
+// Nav Sub-options for special views
+const SPECIAL_SUB_OPTIONS: Record<string, string[]> = {
+  'Visitor / Sevak': ['All Feedback', 'Analytic'],
+  'Todays Report': ['Daily Report', 'Analytics'],
+  'My Profile': ['My Task', 'Unified Request', 'Task Status', 'Bill Submit', 'Room Form', 'Meditator Request', 'Course Summary', 'Schedule', 'Meditation', 'Survey', 'Purchase Order', 'Pay-slip', 'Announcements', 'Feedback', 'Suggestion', 'Chat', 'Leave', 'Movement'],
+};
+
+interface ActiveContext {
   label: string;
   role: Role;
-  department?: Department;
-  trustId?: TrustId;
+  department: Department;
+  trust: TrustId;
+  type?: 'special' | 'dept';
 }
-
 function App() {
-  // Default to Visitor as per "old code" feel or safer default? 
-  // User complained about removal of VisitorForm, so making it default makes sense.
-  const [activeContext, setActiveContext] = useState<SimulationContext>({ label: 'Visitor / Sevak', role: 'Department User' });
-  const [activeSubOption, setActiveSubOption] = useState<string | null>('All Feedback');
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const {
+    rbacUser,
+    roles,
+    permissions,
+    setRBACSession,
+    clearRBACSession,
+    can,
+    isLoading: isRBACLoading,
+    assignedDepartments,
+    primaryDepartmentId,
+    profileSections,
+    departmentSections
+  } = useRBACAuth();
+
+  const [activeContext, setActiveContext] = useState<ActiveContext>({
+    label: 'My Profile',
+    role: 'Staff',
+    department: 'IT',
+    trust: 'GVP',
+    type: 'special'
+  });
+
+  const [activeSubOption, setActiveSubOption] = useState<string>('My Task');
+  const [activeActivity, setActiveActivity] = useState<string>('Dashboard');
   const [requests, setRequests] = useState<GVPRequest[]>([]);
+  const [currentDepartmentId, setCurrentDepartmentId] = useState<number | null>(null);
 
-  // Define the sidebar "User Switcher" items - RESTORED FULL LIST
-  const simulationOptions: SimulationContext[] = [
-    { label: 'Visitor / Sevak', role: 'Department User' },
+  useEffect(() => {
+    if (primaryDepartmentId) {
+      setCurrentDepartmentId(primaryDepartmentId);
+    }
+  }, [primaryDepartmentId]);
 
-    // GPT Departments
-    { label: 'Todays Report', role: 'Department User', department: 'Relevent', trustId: 'GPT' },
-    { label: 'My Profile', role: 'Self User', department: 'Relevent', trustId: 'GPT' },
-    { label: 'Reception', role: 'Department User', department: 'Reception', trustId: 'GPT' },
-    { label: 'Account', role: 'Accounts User', department: 'Account', trustId: 'GPT' },
-    { label: 'IT-Dept', role: 'Department User', department: 'IT-Dept', trustId: 'GPT' },
-    { label: 'PR', role: 'Department User', department: 'PR', trustId: 'GPT' },
-    { label: 'Museum', role: 'Department User', department: 'Museum', trustId: 'GPT' },
-    { label: 'Security', role: 'Security User', department: 'Security', trustId: 'GPT' },
-    { label: 'Maintenance', role: 'Department User', department: 'Maintenance', trustId: 'GPT' },
-    { label: 'Housekeeping', role: 'Department User', department: 'Housekeeping', trustId: 'GPT' },
-    { label: 'Transport', role: 'Department User', department: 'Transport', trustId: 'GPT' },
-
-    // SVCT Departments
-    { label: 'Dhammalay', role: 'Department User', department: 'Dhammale', trustId: 'SVCT' },
-    { label: 'Souvenir', role: 'Department User', department: 'Souvenir', trustId: 'SVCT' },
-
-    // DPT Departments
-    { label: 'DPVT', role: 'Department User', department: 'DPVT', trustId: 'DPT' },
-
-    // VRI Departments
-    { label: 'VRI', role: 'Department User', department: 'VRI Data Center', trustId: 'VRI' },
-    { label: 'Pala', role: 'Department User', department: 'PALA', trustId: 'VRI' },
-
-    // Management/Other
-    { label: 'Purchase', role: 'Department User', department: 'Reception', trustId: 'GPT' },
-    { label: 'Store', role: 'Department User', department: 'Reception', trustId: 'GPT' },
-    { label: 'Food Court', role: 'Department User', department: 'Food Court', trustId: 'GPT' },
-    { label: 'Kitchen', role: 'Department User', department: 'Kitchen', trustId: 'SVCT' },
-    { label: 'Garden', role: 'Department User', department: 'Garden', trustId: 'GPT' },
-    { label: 'Electrician', role: 'Department User', department: 'Electrician', trustId: 'GPT' },
-    { label: 'Water Man', role: 'Department User', department: 'Water Man', trustId: 'GPT' },
-
-    // Management Roles
-    { label: 'Super Admin', role: 'Super Admin' },
-    { label: 'Trustee', role: 'Trustee' },
-    { label: 'Purchase Manager', role: 'Purchase Manager' },
-    { label: 'Store Manager', role: 'Store Manager' },
+  // Simulation settings (for demo purposes)
+  const simulationOptions: { label: string; role: Role; type: 'special' | 'dept'; trust?: TrustId; department?: Department }[] = [
+    { label: 'Visitor / Sevak', role: 'Sevak', type: 'special' },
+    { label: 'Todays Report', role: 'Manager', type: 'special' },
+    { label: 'My Profile', role: 'Staff', type: 'special' },
   ];
 
-  // Poll for updates (Simulation of socket)
   useEffect(() => {
-    const refreshData = () => {
-      const allReqs = getRequests();
-      if (activeContext.role === 'Super Admin' || activeContext.role === 'Trustee') {
-        setRequests(allReqs);
-      } else if (activeContext.trustId && activeContext.department) {
-        setRequests(getRequestsByDepartment(activeContext.department));
-      } else {
-        setRequests([]);
-      }
+    // Check for existing session (LEGACY - keep for compat, but prioritize RBAC)
+    const stored = localStorage.getItem('gvp_user');
+    if (stored && !rbacUser) {
+      const userData = JSON.parse(stored);
+      setUser(userData);
+      setActiveContext({
+        label: 'My Profile',
+        role: userData.role,
+        department: userData.department,
+        trust: userData.trustId,
+        type: 'special'
+      });
+      setActiveSubOption('My Task');
+    }
+
+    const poll = () => {
+      const data = getRequests();
+      setRequests(data);
       checkSLAs();
     };
 
-    refreshData();
-    const interval = setInterval(refreshData, 2000);
+    poll();
+    const interval = setInterval(poll, 5000);
     return () => clearInterval(interval);
-  }, [activeContext]);
+  }, [rbacUser]);
 
-  const handleContextClick = (context: SimulationContext) => {
-    setActiveContext(context);
-    const options = DEPARTMENT_SUB_OPTIONS[context.label];
-    if (options && options.length > 0) {
-      setActiveSubOption(options[0]);
-    } else {
-      setActiveSubOption(null);
+  // Merge regular user with RBAC user
+  const currentUser = rbacUser ? {
+    id: String(rbacUser.id),
+    name: rbacUser.name,
+    email: rbacUser.email,
+    role: (roles?.[0] || 'Staff') as Role, // Use roles from hook
+    department: (rbacUser.department as Department) || 'IT',
+    staffId: rbacUser.employee_id || 'N/A',
+    trustId: 'GPT' as TrustId,
+    profile_sections: rbacUser.profile_sections || [],
+    department_sections: rbacUser.department_sections || [],
+    report_sections: rbacUser.report_sections || [],
+    assignment_sections: rbacUser.assignment_sections || [],
+    cctv_sections: rbacUser.cctv_sections || []
+  } : user;
+
+  if (isRBACLoading) {
+    return <div className="flex h-screen items-center justify-center">Loading Authority...</div>;
+  }
+
+  const getSpecialSubOptions = (label: string) => {
+    const base = SPECIAL_SUB_OPTIONS[label] || [];
+    if (label === 'My Profile') {
+      const perms = permissions || [];
+      // Filter base options by user's enabled profile sections if the mapping exists
+      let baseOptions = (profileSections && profileSections.length > 0)
+        ? base.filter(section => profileSections.includes(section))
+        : [...base];
+      
+      if (perms.includes('VIEW_USER_BASIC') || perms.includes('ADD_MEMBER')) {
+        baseOptions.push('Manage Members');
+      }
+      if (perms.includes('ASSIGN_DEPARTMENT')) {
+        baseOptions.push('Department Mapping');
+      }
+      return baseOptions;
     }
+    return base;
+  };
+
+  const handleContextClick = (ctx: any) => {
+    setActiveContext(ctx);
+    const subOptions = (ctx.type === 'special'
+      ? getSpecialSubOptions(ctx.label)
+      : DEPARTMENT_ACTIVITIES[ctx.department as Department]) || [];
+    setActiveSubOption(subOptions[0] || 'Dashboard');
+    setActiveActivity('Dashboard');
   };
 
   const renderContent = () => {
-    // Check specific tool/reports first
-    if (activeSubOption === 'Chat') {
-      return <ChatSection />;
+    // Determine the current "Module" or "Focus"
+    // Use type field to distinguish between special views (My Profile, etc.) and actual department views
+    const isDeptView = activeContext.type === 'dept';
+    const currentView = isDeptView ? activeActivity : activeSubOption;
+
+    // RBAC: Check for department access
+    if (isDeptView && !roles.includes('Admin') && assignedDepartments.length > 0) {
+      const hasAccess = assignedDepartments.some(ad => ad.name === activeContext.department);
+      if (!hasAccess) {
+        return <AccessDenied departmentName={activeContext.department} />;
+      }
     }
 
-    if (activeSubOption === 'All Feedback') {
-      return <FeedbackCategorySection />;
+    // Mapping for modules
+    if (currentView === 'Unified Request') {
+      return <UnifiedRequestForm user={currentUser} onCancel={() => setActiveSubOption('My Task')} />;
     }
 
-    if (activeSubOption === 'Staff Status') {
-      return <StaffStatusSection />;
+    if (currentView === 'My Task' || currentView === 'Task Status') {
+      return <TaskStatusDashboard user={currentUser} />;
     }
 
-    if (activeSubOption === 'Task Reports') {
-      return <TaskReportsSection />;
+    if (currentView === 'Manage Members') {
+      return <ManageMembers permissions={permissions} />;
     }
 
-    if (activeSubOption === 'In-Progress') {
-      return <InProgressSection />;
+    if (currentView === 'Department Mapping') {
+      if (!can('ASSIGN_DEPARTMENT')) return <AccessDenied message="You don't have permission to manage mappings." />;
+      return <UserDepartmentMappingAdmin />;
     }
 
-    if (activeSubOption === 'MV') {
-      return <MovementViewSection />;
+    if (currentView === 'Chat') {
+      return <ChatSection user={currentUser} />;
     }
 
-    if (activeSubOption === 'Voucher Window') {
-      return <VoucherWindowSection />;
+    if (currentView === 'Dashboard') {
+      return <DepartmentDashboard role={activeContext.role} requests={requests} user={currentUser} />;
     }
 
-    if (activeSubOption === 'Visitor Window') {
-      return <VisitorReportWindowSection />;
-    }
-
-    if (activeSubOption === 'Consumption Report') {
-      return <ConsumptionReportWindowSection />;
-    }
-
-    if (activeSubOption === 'Analytics') {
-      return <AnalyticsSection />;
-    }
-
-    if (activeSubOption === 'Received Requests') {
-      return <ReceivedRequestsSection department={activeContext.label} />;
-    }
-
-    // Role-based Dashboards
-    if (activeContext.role === 'Super Admin' || activeContext.role === 'Trustee' || activeContext.role === 'Purchase Manager' || activeContext.role === 'Store Manager') {
-      return <AdminDashboard role={activeContext.role} requests={requests} />;
-    }
-
-    // Default Visitor View
-    if (activeContext.label === 'Visitor / Sevak') {
-      return <VisitorForm role={activeContext.role} />;
-    }
-
-    if (activeSubOption === 'Attendance') {
+    if (currentView === 'Attendance') {
       return <AttendanceSection />;
     }
 
-    if (activeSubOption === 'CCTV') {
+    if (currentView === 'CCTV') {
       return <CCTVSection />;
     }
 
-    if (activeSubOption === 'Daily Report') {
+    if (currentView === 'Daily Report') {
       return <DailyReportSection />;
     }
 
-    if (activeSubOption === 'Meditation') {
-      return <MeditationSection />;
+    if (currentView === 'Purchase Order') {
+      return isDeptView ? <PurchaseOrderFeed /> : <PurchaseOrderForm />;
     }
 
-    if (activeSubOption === 'Meditation Window') {
-      return <MeditationWindowSection />;
+    if (currentView === 'Meditation' || currentView === 'Meditation Done') {
+      return isDeptView ? <MeditationDashboard /> : <MeditationSection />;
     }
 
-    if (activeSubOption === 'Announcements') {
-      return <AnnouncementSection />;
+    if (currentView === 'Analytics') {
+      return <AnalyticsDashboard />;
     }
 
-    if (activeSubOption === 'Announcements Window') {
-      return <AnnouncementsWindowSection />;
+    if (currentView === 'Housekeeping Maintenance Dashboard') {
+      return <HousekeepingFeed />;
     }
 
-    if (activeSubOption === 'Bill Sub') {
-      return <BillSubSection />;
+    if (currentView === 'Room Form') {
+      return <RoomForm user={currentUser} />;
     }
 
-    if (activeSubOption === 'My Task') {
-      return <TaskSection />;
+    if (currentView === 'Room Dashboard') {
+      return <RoomDashboard />;
     }
 
-    if (activeSubOption === 'Courses') {
-      return <CourseRequestSection />;
+    if (currentView === 'Course Summary') {
+      return <CourseSummaryForm />;
     }
 
-    if (activeSubOption === 'Material') {
-      return <MaterialRequestSection />;
+    if (currentView === 'Meditator Request') {
+      return isDeptView ? <MeditatorDashboard /> : <MeditatorRequestForm user={currentUser} />;
     }
 
-    if (activeSubOption === 'Meals') {
-      return <MealRequestSection />;
+    if (currentView === 'Bill Submit' || currentView === 'Bill Sub') {
+      return <BillSubmitForm user={currentUser} />;
     }
 
-    if (activeSubOption === 'Vehicles') {
-      return <VehicleRequestSection />;
+    if (currentView === 'Announcements') {
+      return isDeptView ? <AnnouncementFeed /> : <AnnouncementSection />;
     }
 
-    if (activeSubOption === 'Guest') {
-      return <GuestRequestSection />;
-    }
-
-    if (activeSubOption === 'Rooms') {
-      return <RoomRequestSection />;
-    }
-
-    if (activeSubOption === 'Leave') {
+    if (currentView === 'Leave') {
       return <LeaveRequestSection />;
     }
 
-    if (activeSubOption === 'Movement') {
+    if (currentView === 'Movement') {
       return <MovementSection />;
     }
 
-    if (activeSubOption === 'Issue') {
+    if (currentView === 'Staff Status') {
+      return <StaffStatusSection user={currentUser} />;
+    }
+
+    if (currentView === 'In-Progress') {
+      return <InProgressSection />;
+    }
+
+    if (currentView === 'Issue') {
       return <IssueSubmissionSection />;
     }
 
-    if (activeSubOption === 'Issue Window') {
-      return <IssueWindowSection />;
+    if (currentView === 'Voucher') {
+      return <VoucherWindowSection />;
     }
 
-    if (activeSubOption === 'Visitor') {
-      return <VisitorRecordSection />;
-    }
-
-    if (activeSubOption === 'Consumption') {
-      return <ConsumptionSection />;
-    }
-
-    if (activeSubOption === 'Repair') {
+    if (currentView === 'Maintains') {
       return <RepairRequestSection />;
     }
 
-    if (activeSubOption === 'Requirement') {
-      return <RequirementForm
-        department={activeContext.department || 'Reception'}
-        trustId={activeContext.trustId}
-        role={activeContext.role}
-      />;
-    }
-
-    if (activeSubOption) {
+    if (currentView === 'Staff Resume') {
       return (
-        <div className="p-8 glass-card fade-in">
-          <h2 className="text-2xl font-bold mb-4">{activeContext.label} - {activeSubOption}</h2>
-          <div className="mt-6 p-12 border-2 border-dashed border-gray-300 rounded-xl text-center text-gray-400 bg-white/20">
-            <h3 className="text-xl font-semibold text-gray-600 mb-2">{activeSubOption} Module</h3>
-            <p>Ready to process {activeSubOption.toLowerCase()} for {activeContext.label}.</p>
+        <div className="p-8">
+          <div className="glass-card p-12 text-center border-2 border-dashed border-gray-200">
+            <h3 className="text-2xl font-bold text-primary-dark mb-4">Staff Resume Vault</h3>
+            <p className="text-text-muted">Repository of staff profiles for {activeSubOption}.</p>
           </div>
         </div>
       );
     }
 
-    // Default Department Dashboard
-    return <DepartmentDashboard role={activeContext.role} requests={requests} />;
+    if (currentView === 'Swipe Request') {
+      return (
+        <div className="p-8">
+          <div className="glass-card p-12 text-center border-2 border-dashed border-gray-200">
+            <h3 className="text-2xl font-bold text-primary-dark mb-4">Manual Swipe Approval</h3>
+            <p className="text-text-muted">Manage attendance swipe regularizations here.</p>
+          </div>
+        </div>
+      );
+    }
+
+    if (currentView === 'Policies') {
+      return (
+        <div className="p-8">
+          <div className="glass-card p-12 text-center border-2 border-dashed border-gray-200">
+            <h3 className="text-2xl font-bold text-primary-dark mb-4">Department Policies</h3>
+            <p className="text-text-muted">Standard Operating Procedures for {activeSubOption}.</p>
+          </div>
+        </div>
+      );
+    }
+
+    if (currentView === 'Received Request' || currentView === 'Requests' || currentView === 'Received Requests') {
+      const dept = ['GVP', 'DPVT', 'SVCT', 'VRI'].includes(activeContext.label) ? activeSubOption : activeContext.department;
+      return <ReceivedRequestsSection department={dept as Department} user={currentUser} />;
+    }
+
+    if (currentView === 'All Feedback') {
+      return <AllFeedbackSection />;
+    }
+
+    if (currentView === 'Survey') {
+      return isDeptView ? <SurveyReport /> : <SurveyBuilder />;
+    }
+
+    if (currentView === 'Suggestion') {
+      return <SuggestionsSection user={currentUser} />;
+    }
+
+    // Default Fallback for generic/new labels
+    return (
+      <div style={{ padding: '2rem' }}>
+        <div className="glass-card p-12 text-center border-2 border-dashed border-gray-200">
+          <h3 className="text-2xl font-bold text-primary-dark mb-4">{currentView} Module</h3>
+          <p className="text-text-muted mb-8">
+            Accessing {currentView.toLowerCase()} for {activeSubOption} Dept under {activeContext.label}.
+          </p>
+          <div className="bg-primary/5 p-4 rounded-xl border border-primary/10 inline-block text-sm font-semibold text-primary">
+            Activity recorded in {activeSubOption} audit timeline.
+          </div>
+        </div>
+      </div>
+    );
   };
 
-  return (
-    <div id="root">
-      <Navbar />
+  if (!currentUser) {
+    return <LoginPortal
+      onLogin={(userData) => {
+        setUser(userData);
+        localStorage.setItem('gvp_user', JSON.stringify(userData));
+        setActiveContext({
+          label: 'My Profile',
+          role: userData.role,
+          department: userData.department,
+          trust: userData.trustId,
+          type: 'special'
+        });
+        setActiveSubOption('My Task');
+      }}
+      onRBACLogin={(token, rbacUser, rbacRoles, rbacPerms) => {
+        setRBACSession(token, rbacUser, rbacRoles, rbacPerms);
+        setActiveContext({
+          label: 'My Profile',
+          role: (rbacRoles[0] as Role) || 'Staff',
+          department: (rbacUser.department as Department) || 'IT',
+          trust: 'GVP',
+          type: 'special'
+        });
+        setActiveSubOption('My Task');
+      }}
+    />;
+  }
 
-      <main className="main-container">
-        {/* Left Sidebar - Acts as "Role/Context Switcher" for Demo */}
-        <aside className="sidebar-left">
-          <div className="sidebar-heading">
-            Simulate As
-          </div>
-          {simulationOptions.map((ctx, index) => (
-            <button
-              key={index}
-              onClick={() => handleContextClick(ctx)}
-              className={`dept-btn ${activeContext.label === ctx.label ? 'active' : ''}`}
-            >
-              {ctx.label}
-            </button>
-          ))}
-        </aside>
+    const handleDeptSwitch = (id: number | null) => {
+      setCurrentDepartmentId(id);
+      if (id) {
+        const dept = assignedDepartments.find(d => d.id === id);
+        if (dept) {
+          // Find which trust this department belongs to
+          let trust: TrustId = 'GVP';
+          for (const [tid, depts] of Object.entries(SIDEBAR_DEPARTMENTS)) {
+            if (depts.includes(dept.name as Department)) {
+              trust = tid as TrustId;
+              break;
+            }
+          }
+          handleContextClick({
+            label: dept.name,
+            role: (roles?.[0] || 'Staff') as Role,
+            type: 'dept',
+            trust: trust,
+            department: dept.name
+          });
+        }
+      } else {
+        handleContextClick({
+          label: 'My Profile',
+          role: (roles?.[0] || 'Staff') as Role,
+          type: 'special'
+        });
+      }
+    };
 
-        {/* Center Content */}
-        <section className="content-area">
-          {/* Horizontal Sub-Navigation Bar */}
-          <div className="horizontal-nav">
-            {DEPARTMENT_SUB_OPTIONS[activeContext.label]?.map((sub: string, idx: number) => (
-              <button
-                key={idx}
-                onClick={() => setActiveSubOption(sub)}
-                className={`nav-item-h ${activeSubOption === sub ? 'active' : ''}`}
-              >
-                {sub}
-              </button>
-            ))}
-          </div>
+    return (
+      <div id="root">
+        <Navbar user={currentUser} onLogout={() => { setUser(null); clearRBACSession(); }} />
 
-          <div className={`workspace-container ${['CCTV', 'Chat', 'Daily Report', 'Analytics', 'Meditation', 'Meditation Window', 'Announcements', 'Announcements Window', 'Bill Sub', 'My Task', 'Courses', 'Material', 'Repair', 'Meals', 'Vehicles', 'Guest', 'Rooms', 'Leave', 'Movement', 'Issue', 'Issue Window', 'Visitor', 'Visitor Window', 'Consumption', 'Consumption Report', 'Received Requests', 'All Feedback', 'Staff Status', 'Task Reports', 'In-Progress', 'MV', 'Voucher Window'].includes(activeSubOption || '') ? 'p-0 flex flex-col' : ''}`}>
+        <main className="main-container">
+          {/* Left Sidebar - Acts as "Role/Context Switcher" for Demo */}
+          <aside className="sidebar-left">
+            <div className="sidebar-heading">Portal Switcher</div>
+
+            <div className="mb-6 space-y-1">
+              {simulationOptions.map((ctx, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleContextClick(ctx)}
+                  className={`dept-btn ${activeContext.label === ctx.label ? 'active' : ''}`}
+                  style={{ fontWeight: 700 }}
+                >
+                  {ctx.label}
+                </button>
+              ))}
+            </div>
+
+            {(['GVP', 'DPVT', 'SVCT', 'VRI'] as TrustId[]).map(trustId => {
+              const depts = SIDEBAR_DEPARTMENTS[trustId].filter(dept => {
+                // If Super Admin (role Admin from mock) or no explicit departments assigned, show all
+                if (roles.includes('Admin') || assignedDepartments.length === 0) return true;
+                // Otherwise show only assigned ones
+                return assignedDepartments.some(ad => ad.name === dept);
+              });
+
+              if (depts.length === 0) return null;
+
+              return (
+                <div key={trustId} className="mb-4">
+                  <div className="px-3 py-2 text-[10px] font-black text-primary uppercase tracking-widest opacity-60">
+                    {trustId} Departments
+                  </div>
+                  <div className="space-y-1">
+                    {depts.map((dept: Department) => (
+                      <button
+                        key={dept}
+                        onClick={() => handleContextClick({ label: dept, role: 'Staff', type: 'dept', trust: trustId, department: dept })}
+                        className={`dept-btn ${activeContext.department === dept ? 'active' : ''}`}
+                        style={{ fontSize: '0.8rem', paddingLeft: '1.5rem' }}
+                      >
+                        {dept}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </aside>
+
+          {/* Center Content */}
+          <section className="content-area">
+            {/* Horizontal Nav - For Special Views only or title only */}
+            <div className="horizontal-nav" style={{ padding: '0 1.5rem', display: 'flex', alignItems: 'center', minHeight: '48px', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                {activeContext.type === 'special' ? (
+                  getSpecialSubOptions(activeContext.label)?.map((sub: string, idx: number) => (
+                    <button
+                      key={idx}
+                      onClick={() => setActiveSubOption(sub)}
+                      className={`nav-item-h ${activeSubOption === sub ? 'active' : ''}`}
+                    >
+                      {sub}
+                    </button>
+                  ))
+                ) : (
+                  <span className="text-primary font-bold">{activeContext.department} Operations</span>
+                )}
+              </div>
+              {assignedDepartments.length > 0 && (
+                <DepartmentSwitcher
+                  assignedDepartments={assignedDepartments.map(d => ({ id: String(d.id), name: d.name }))}
+                  currentDepartment={currentDepartmentId ? String(currentDepartmentId) : null}
+                  onSwitch={(id) => handleDeptSwitch(id ? Number(id) : null)}
+                />
+              )}
+            </div>
+
+          {/* Operational Menu Bar (Control Console) */}
+          {activeContext.type === 'dept' && (
+            <OperationalMenu
+              activeActivity={activeActivity}
+              onActivityChange={setActiveActivity}
+              activities={(DEPARTMENT_ACTIVITIES[activeContext.department as Department] || []).filter(act => {
+                // If mapping is not set or empty, show all (for backward compat)
+                if (!departmentSections || departmentSections.length === 0) return true;
+                
+                // New Granular Check: ${trust}-${dept}:${act}
+                const granularKey = `${activeContext.trust}-${activeContext.department}:${act}`;
+                if (departmentSections.includes(granularKey)) return true;
+                
+                // Special case for matching granular "Reception Bills" toggle to any department's "XXXX Bills" activity
+                if (act.toLowerCase().includes('bills')) {
+                  const billKey = `${activeContext.trust}-${activeContext.department}:Reception Bills`;
+                  if (departmentSections.includes(billKey)) return true;
+                }
+                
+                // Legacy support (if no colon in string, treat as global)
+                if (departmentSections.includes(act)) return true;
+                
+                return false;
+              })}
+            />
+          )}
+
+          <div className={`workspace-container ${['CCTV', 'Chat', 'Daily Report', 'Analytics', 'Meditation', 'Meditation Window', 'Announcements', 'Announcements Window', 'Bill Sub', 'My Task', 'Unified Request', 'Courses', 'Material', 'Repair', 'Meals', 'Vehicles', 'Guest', 'Rooms', 'Leave', 'Movement', 'Issue', 'Issue Window', 'Visitor', 'Visitor Window', 'Consumption', 'Consumption Report', 'Received Requests', 'All Feedback', 'Staff Status', 'Task Reports', 'In-Progress', 'MV', 'Voucher Window'].includes(activeSubOption || '') ? 'p-0 flex flex-col' : ''}`}>
             {renderContent()}
           </div>
         </section>
 
         {/* Right Sidebar */}
         <aside className="sidebar-right">
-          <div className="glass-card p-4 mb-4">
+          <div className="glass-card p-4">
             <p className="widget-title">Current Context</p>
-            <div className="text-xs space-y-2 mt-2">
-              <p><span className="text-text-muted">Role:</span> {activeContext.role}</p>
-              <p><span className="text-text-muted">Trust:</span> {activeContext.trustId || 'N/A'}</p>
-              <p><span className="text-text-muted">Dept:</span> {activeContext.department || 'N/A'}</p>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-main)', marginTop: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: 'var(--text-muted)' }}>User:</span>
+                <span style={{ fontWeight: 600 }}>{currentUser?.name || 'Guest'}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: 'var(--text-muted)' }}>Staff ID:</span>
+                <span style={{ fontWeight: 600 }}>{currentUser?.staffId || 'N/A'}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: 'var(--text-muted)' }}>Role:</span>
+                <span style={{ fontWeight: 600 }}>{activeContext.role}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: 'var(--text-muted)' }}>Dept:</span>
+                <span style={{ fontWeight: 600 }}>{activeContext.department || 'N/A'}</span>
+              </div>
             </div>
           </div>
 
-          <div>
-            <DailyReportWidget />
-          </div>
+          <DailyReportWidget />
         </aside>
       </main>
 
@@ -405,6 +598,7 @@ function App() {
           All Rights Reserved
         </div>
       </footer>
+      <AskAI user={currentUser} />
     </div>
   );
 }

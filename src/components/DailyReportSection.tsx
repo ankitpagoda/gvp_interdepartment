@@ -1,11 +1,13 @@
 import { CheckCheck } from 'lucide-react';
+import { useRBACAuth } from '../hooks/useRBACAuth';
 
 const DailyReportSection = () => {
+    const { reportSections } = useRBACAuth();
     const today = new Date();
     const formattedDate = today.toLocaleDateString('en-GB'); // DD/MM/YYYY
     const formattedTime = today.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 
-    const sections = [
+    const rawSections = [
         {
             title: 'MR/MRI',
             items: [
@@ -80,6 +82,24 @@ const DailyReportSection = () => {
         }
     ];
 
+    // Filter sections based on user's authorized widgets
+    const filteredSections = rawSections.map(section => {
+        // If mapping is not available or empty (e.g., legacy users), show all
+        if (!reportSections || reportSections.length === 0) return section;
+
+        // Special case: MR/MRI category was not in user's request but in code.
+        // If it's a category we track mapping for, filter it.
+        const filteredItems = section.items.filter(item => {
+            const key = `${section.title}:${item.label}`;
+            return reportSections.includes(key);
+        });
+
+        // For MR/MRI which isn't in mapping right now, let's keep all until admin decides otherwise
+        if (section.title === 'MR/MRI') return section;
+
+        return { ...section, items: filteredItems };
+    }).filter(section => section.items.length > 0);
+
     return (
         <div style={{
             backgroundColor: '#fff',
@@ -124,7 +144,7 @@ const DailyReportSection = () => {
                 gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
                 gap: '1.5rem'
             }}>
-                {sections.map((section, idx) => (
+                {filteredSections.map((section, idx) => (
                     <div key={idx} style={{ position: 'relative', marginTop: '1rem' }}>
                         {/* Section Title Label */}
                         <div style={{

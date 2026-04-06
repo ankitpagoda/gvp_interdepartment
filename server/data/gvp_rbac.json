@@ -1,0 +1,386 @@
+{
+  "data": {
+    "departments": [
+      {
+        "id": 1,
+        "name": "Dhamma-Pattana"
+      },
+      {
+        "id": 2,
+        "name": "Food-Court"
+      },
+      {
+        "id": 3,
+        "name": "Souvenir"
+      },
+      {
+        "id": 4,
+        "name": "Dhammalay"
+      },
+      {
+        "id": 5,
+        "name": "Library"
+      },
+      {
+        "id": 6,
+        "name": "Academic"
+      },
+      {
+        "id": 7,
+        "name": "Pariyatti"
+      },
+      {
+        "id": 8,
+        "name": "Archive"
+      },
+      {
+        "id": 9,
+        "name": "Conservation"
+      },
+      {
+        "id": 10,
+        "name": "Preservation"
+      },
+      {
+        "id": 11,
+        "name": "Publication"
+      },
+      {
+        "id": 12,
+        "name": "Reception"
+      },
+      {
+        "id": 13,
+        "name": "Museum"
+      },
+      {
+        "id": 14,
+        "name": "PR"
+      },
+      {
+        "id": 15,
+        "name": "Maintains"
+      },
+      {
+        "id": 16,
+        "name": "Electrical"
+      },
+      {
+        "id": 17,
+        "name": "Water"
+      },
+      {
+        "id": 18,
+        "name": "Civil"
+      },
+      {
+        "id": 19,
+        "name": "Kitchen"
+      },
+      {
+        "id": 20,
+        "name": "One-Day"
+      },
+      {
+        "id": 21,
+        "name": "Garden"
+      },
+      {
+        "id": 22,
+        "name": "Housekeeping"
+      },
+      {
+        "id": 23,
+        "name": "Security"
+      },
+      {
+        "id": 24,
+        "name": "Accounts"
+      },
+      {
+        "id": 25,
+        "name": "IT"
+      },
+      {
+        "id": 26,
+        "name": "Purchase"
+      },
+      {
+        "id": 27,
+        "name": "Store"
+      }
+    ],
+    "roles": [
+      {
+        "id": 1,
+        "name": "Admin"
+      },
+      {
+        "id": 2,
+        "name": "Manager"
+      },
+      {
+        "id": 3,
+        "name": "Staff"
+      }
+    ],
+    "permissions": [
+      {
+        "id": 1,
+        "key": "ADD_MEMBER",
+        "description": "Create / invite a new member account"
+      },
+      {
+        "id": 2,
+        "key": "VIEW_USER_BASIC",
+        "description": "View basic user information & member list"
+      },
+      {
+        "id": 3,
+        "key": "ASSIGN_DEPARTMENT",
+        "description": "Assign or change a user's department"
+      },
+      {
+        "id": 4,
+        "key": "ASSIGN_ROLE",
+        "description": "Grant or revoke roles for a user"
+      },
+      {
+        "id": 5,
+        "key": "VIEW_EMPLOYEE_ID",
+        "description": "View confidential employee ID values"
+      },
+      {
+        "id": 6,
+        "key": "VIEW_PROFILE",
+        "description": "View own and others' profile details"
+      },
+      {
+        "id": 7,
+        "key": "VIEW_DEPARTMENT",
+        "description": "View department listings"
+      },
+      {
+        "id": 8,
+        "key": "VIEW_TODAY_REPORT",
+        "description": "Access today's operational report"
+      },
+      {
+        "id": 9,
+        "key": "DELETE_MEMBER",
+        "description": "Delete a member account"
+      },
+      {
+        "id": 10,
+        "key": "EDIT_MEMBER",
+        "description": "Edit member details"
+      },
+      {
+        "id": 11,
+        "key": "RESET_PASSWORD",
+        "description": "Reset user passwords"
+      }
+    ],
+    "role_permissions": [
+      {
+        "role_id": 1,
+        "permission_id": 1
+      },
+      {
+        "role_id": 1,
+        "permission_id": 2
+      },
+      {
+        "role_id": 1,
+        "permission_id": 3
+      },
+      {
+        "role_id": 1,
+        "permission_id": 4
+      },
+      {
+        "role_id": 1,
+        "permission_id": 5
+      },
+      {
+        "role_id": 1,
+        "permission_id": 6
+      },
+      {
+        "role_id": 1,
+        "permission_id": 7
+      },
+      {
+        "role_id": 1,
+        "permission_id": 8
+      },
+      {
+        "role_id": 1,
+        "permission_id": 9
+      },
+      {
+        "role_id": 1,
+        "permission_id": 10
+      },
+      {
+        "role_id": 1,
+        "permission_id": 11
+      },
+      {
+        "role_id": 2,
+        "permission_id": 2
+      },
+      {
+        "role_id": 2,
+        "permission_id": 6
+      },
+      {
+        "role_id": 2,
+        "permission_id": 7
+      },
+      {
+        "role_id": 2,
+        "permission_id": 8
+      },
+      {
+        "role_id": 3,
+        "permission_id": 6
+      },
+      {
+        "role_id": 3,
+        "permission_id": 8
+      }
+    ],
+    "users": [
+      {
+        "id": 1,
+        "name": "GVP Admin Updated",
+        "email": "admin@gvp.org",
+        "mobile": "9000000001",
+        "employee_id": "GVP-ADMIN-001",
+        "department_id": 25,
+        "password_hash": "$2a$10$fuQgmcg0qFB4SJfC55qQ1ewnOhp2J2KBTzRtqJyCdZcljVlDperDu",
+        "created_at": "2026-04-01T04:50:52.906Z"
+      },
+      {
+        "id": 2,
+        "name": "Amit Sharma",
+        "email": "manager@gvp.org",
+        "mobile": "9000000002",
+        "employee_id": "GVP-IT-001",
+        "department_id": 25,
+        "password_hash": "$2a$10$DUBHRLJSNQnkBKrf2kCeE.kLdwrv2VAUVOU1eVmz5ZUwI4csyGxnW",
+        "created_at": "2026-04-01T04:50:53.006Z"
+      },
+      {
+        "id": 3,
+        "name": "Priya Staff",
+        "email": "staff@gvp.org",
+        "mobile": "9000000003",
+        "employee_id": "GVP-REC-001",
+        "department_id": 12,
+        "password_hash": "$2a$10$X0ZM4XRRAj1R6fVT5IednuX.EI5d0V8/8OYy/t/YBNJRNts.8Ehju",
+        "created_at": "2026-04-01T04:50:53.101Z"
+      },
+      {
+        "id": 4,
+        "name": "Rajiv Mehta",
+        "email": "rajiv@gvp.org",
+        "mobile": "9000000004",
+        "employee_id": "GVP-IT-002",
+        "department_id": 12,
+        "password_hash": "$2a$10$M2ohPdKlZcjiG7RVIFdss.7mGOem2n7WTFvb9bk9J8MI39UC8Azse",
+        "created_at": "2026-04-01T06:26:34.895Z",
+        "primary_department_id": 12,
+        "profile_sections": [
+          "My Task",
+          "Unified Request",
+          "Meditation"
+        ],
+        "department_sections": [],
+        "report_sections": [],
+        "assignment_sections": []
+      },
+      {
+        "id": 5,
+        "name": "Test Member",
+        "email": "test@gvp.org",
+        "mobile": "9999999999",
+        "employee_id": "GVP-TEST-001",
+        "department_id": 25,
+        "password_hash": "$2a$10$cnbyjEAXTn3foZpsb5hOd.xVQK66ZQGvREM7tS7H4LS8Xvdbc2Gzq",
+        "created_at": "2026-04-05T12:20:00.832Z",
+        "primary_department_id": 25,
+        "profile_sections": [
+          "My Task",
+          "Chat",
+          "Leave",
+          "Unified Request",
+          "Task Status"
+        ],
+        "department_sections": [
+          "Task Status",
+          "Policies",
+          "VRI-Academic:Task Status",
+          "GVP-Accounts:Task Status",
+          "VRI-Archive:Staff Status"
+        ],
+        "report_sections": [
+          "Visitor:Dhamalay",
+          "Visitor:Anapana",
+          "Staff/DS:GVP",
+          "Vouchers:GVP",
+          "Visitor:GVP",
+          "Task:GVP",
+          "Water Con.:GVP",
+          "Maintenance:Driver",
+          "Power Con.:GVP"
+        ],
+        "assignment_sections": [],
+        "cctv_sections": [
+          "DPVT:Dhamma Hall"
+        ]
+      }
+    ],
+    "user_roles": [
+      {
+        "user_id": 1,
+        "role_id": 1
+      },
+      {
+        "user_id": 2,
+        "role_id": 2
+      },
+      {
+        "user_id": 3,
+        "role_id": 3
+      },
+      {
+        "user_id": 5,
+        "role_id": 3
+      }
+    ],
+    "user_departments": [
+      {
+        "user_id": 4,
+        "department_id": 12
+      },
+      {
+        "user_id": 4,
+        "department_id": 23
+      },
+      {
+        "user_id": 5,
+        "department_id": 25
+      }
+    ],
+    "password_reset_requests": []
+  },
+  "nextId": {
+    "departments": 28,
+    "roles": 4,
+    "permissions": 12,
+    "users": 6,
+    "reset_requests": 2
+  }
+}

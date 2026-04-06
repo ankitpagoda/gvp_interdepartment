@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
-    BarChart3,
     TrendingUp,
     Users,
     AlertCircle,
@@ -10,7 +9,6 @@ import {
     Activity,
     Filter,
     ChevronDown,
-    Calendar,
     ArrowUpRight,
     ArrowDownRight
 } from 'lucide-react';
@@ -89,7 +87,9 @@ const DonutChart = () => (
     </div>
 );
 
-const AnalyticsSection = () => {
+import type { User as AuthUser } from '../types.ts';
+
+const AnalyticsSection = ({ user }: { user: AuthUser | null }) => {
     const [dateRange, setDateRange] = useState('Today');
 
     return (
@@ -113,6 +113,7 @@ const AnalyticsSection = () => {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#1e3a8a', fontWeight: 700 }}>
                         <TrendingUp size={20} />
                         Unified Analytics
+                        <span style={{ fontSize: '0.8rem', fontWeight: 500, color: '#64748b', marginLeft: '1rem' }}>Welcome, {user?.name}</span>
                     </div>
                     <div style={{ width: '1px', height: '20px', background: '#e2e8f0' }} />
                     <div style={{ display: 'flex', gap: '0.5rem' }}>

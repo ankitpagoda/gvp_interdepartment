@@ -1,7 +1,9 @@
+import type { User as AuthUser } from '../types.ts';
 import BaseRecordCard from './BaseRecordCard';
 
-const StaffStatusSection = () => {
+const StaffStatusSection = ({ user }: { user: AuthUser | null }) => {
     const staffData = [
+        ...(user ? [{ name: user.name, status: 'Active (You)', reason: 'N/A', task: 'Reviewing Portal', dept: typeof user.department === 'string' ? user.department : 'My Dept', time: 'Just Now' }] : []),
         { name: 'Mr. ABC P XYZ', status: 'Present', reason: 'N/A', task: 'TK-402', dept: 'Development', time: '2 Hour Ago' },
         { name: 'Mrs. JKL M NOP', status: 'Seek Leave', reason: 'Medical Emergency', task: 'N/A', dept: 'Admin', time: '5 Hour Ago' },
         { name: 'Mr. QRS T UVW', status: 'Present', reason: 'Late Entry (15 mins)', task: 'TK-105', dept: 'Reception', time: 'Yesterday' },

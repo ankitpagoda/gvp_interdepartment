@@ -1,6 +1,7 @@
-import { Search, ChevronDown, User } from 'lucide-react';
+import { Search, User as UserIcon, LogOut } from 'lucide-react';
+import type { User as AuthUser } from '../types.ts';
 
-const Navbar = () => {
+const Navbar = ({ user, onLogout }: { user: AuthUser | null, onLogout?: () => void }) => {
     return (
         <header className="header-container">
             {/* Left: Logo Section */}
@@ -28,14 +29,32 @@ const Navbar = () => {
                 </div>
 
                 {/* User Area */}
-                <div className="user-area">
+                <div className="user-area" style={{ cursor: 'default' }}>
                     <div className="avatar-circle">
-                        <User size={18} fill="white" />
+                        {user?.name ? (
+                            <span style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>{user.name[0]}</span>
+                        ) : (
+                            <UserIcon size={18} fill="white" />
+                        )}
                     </div>
-                    <div className="flex items-center gap-1">
-                        <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#1e293b' }}>Admin</span>
-                        <ChevronDown size={14} className="text-slate-500" />
+                    <div className="flex flex-col items-start leading-tight">
+                        <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--primary-dark)' }}>
+                            {user?.name || 'Admin'}
+                        </span>
+                        <span style={{ fontSize: '0.65rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                            {user?.role || 'System'}
+                        </span>
                     </div>
+
+                    <div style={{ width: '1px', height: '24px', background: '#e2e8f0', margin: '0 0.75rem' }} />
+
+                    <button
+                        onClick={onLogout}
+                        className="text-slate-400 hover:text-rose-500 transition-colors"
+                        title="Sign Out"
+                    >
+                        <LogOut size={18} />
+                    </button>
                 </div>
             </div>
         </header>

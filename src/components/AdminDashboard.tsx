@@ -1,13 +1,14 @@
 import { useState } from 'react';
-import type { Role, GVPRequest, RequestStatus } from '../types';
+import type { Role, GVPRequest, RequestStatus, User as AuthUser } from '../types';
 import { Shield, AlertTriangle, Clock, BarChart3, Search, X, ChevronRight } from 'lucide-react';
 
 interface AdminDashboardProps {
     role: Role;
     requests: GVPRequest[];
+    user: AuthUser | null;
 }
 
-const AdminDashboard = ({ role, requests }: AdminDashboardProps) => {
+const AdminDashboard = ({ role, requests, user }: AdminDashboardProps) => {
     const [selectedId, setSelectedId] = useState<string | null>(null);
 
     const stats = {
@@ -61,6 +62,7 @@ const AdminDashboard = ({ role, requests }: AdminDashboardProps) => {
                             <span className="text-[10px] bg-primary/10 text-primary px-3 py-1 rounded-full border border-primary/20 ml-2">
                                 {role.replace('_', ' ').toUpperCase()}
                             </span>
+                            <span className="text-[10px] text-text-muted ml-4 font-normal">Active Auditor: {user?.name} ({user?.staffId})</span>
                         </h2>
                         <div className="flex gap-4 w-full md:w-auto">
                             <div className="relative flex-1 md:w-64">
